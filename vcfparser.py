@@ -1,16 +1,6 @@
-
-
-#Open the VCF file with the given name
-vcffilename = "TestVC_Filtered_Annotated.vcf"
-try:
-	vcffile = open(vcffilename, "r")
-	fileexists = True
-except:
-	print("Error! VCF file does not exist!")
-	fileexists = False
-
-	
-if fileexists == True:
+def parsevcf(file):
+	"""Core function that parses the VCF file and extracts specified data from it
+	This function reads the VCF file, extracts the data from the variant table, and returns specified data"""
 	#Flag to start parsing the data in the VCF
 	variantslist = False
 	
@@ -39,5 +29,19 @@ if fileexists == True:
 			hgvs = "g." + vcfrow[0] + ":" + vcfrow[1] + vcfrow[3] + ">" + vcfrow[4]
 			
 			print(hgvs)
+
+#Open the VCF file with the given name, check for presence of file and return error if it is not present
+vcffilename = "TestVCF_Filtered_Annotated.vcf"
+try:
+	#Open VCF file
+	vcffile = open(vcffilename, "r")
 	
+	#Call function to parse VCF file
+	parsevcf(vcffile)
+	
+	#Close the file on completion
 	vcffile.close()
+except:
+	#Error if cannot find file
+	print("Error! VCF file does not exist!")
+	fileexists = False

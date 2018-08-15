@@ -23,25 +23,44 @@ def parsevcf(file):
 			vcfline = vcfline.replace("\n","")
 			vcfrow = vcfline.split("\t")
 			
-			#Generate HGVS variant description
-			##if len(vcfrow[3] < vcfrow[4])
-				
-			hgvs = "g." + vcfrow[0] + ":" + vcfrow[1] + vcfrow[3] + ">" + vcfrow[4]
+			#Extract VCF info by splitting
+			vcfinfo = vcfrow[7].split(";")
 			
-			print(hgvs)
+			for info in vcfinfo:
+				#Get the effect of a variant
+				if "EFF=" in info:
+					#Split variants by what type of effects it has
+					effects = info.split("|")
+					
+					#Split the variant description types
+					variant = effects[3]
+					variant = variant.split("/")
+					
+					for varianttype in variant:
+						if "c." in varianttype:
+							cvariant = varianttype
+					
+					#Format as HGVS
+					gene = effects[5]
+					hgvs = gene + " " + cvariant
+					print(hgvs)
 
 #Open the VCF file with the given name, check for presence of file and return error if it is not present
 vcffilename = "TestVCF_Filtered_Annotated.vcf"
-try:
-	#Open VCF file
-	vcffile = open(vcffilename, "r")
-	
-	#Call function to parse VCF file
-	parsevcf(vcffile)
-	
-	#Close the file on completion
-	vcffile.close()
-except:
-	#Error if cannot find file
-	print("Error! VCF file does not exist!")
-	fileexists = False
+
+vcffile = open(vcffilename,"r")
+parsevcf(vcffile)
+
+#try:
+#	#Open VCF file
+#	vcffile = open(vcffilename,"r")
+#	
+#	#Call function to parse VCF file
+#	parsevcf(vcffile)
+#	
+#	#Close the file on completion
+#	vcffile.close()
+#except:
+#	#Error if cannot find file
+#	print("Error! VCF file does not exist!")
+#	fileexists = False

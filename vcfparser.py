@@ -51,16 +51,11 @@ vcffilename = "TestVCF_Filtered_Annotated.vcf"
 try:
 	#Open VCF file and set flag to true
 	vcffile = open(vcffilename,"r")
-	fileexists = True
-except:
-	#Display error if cannot find file and set flag to true
-	print("Error! VCF file does not exist!")
-	fileexists = False
-
-#Only run parser if file exists
-#Use of flag means error is caught at the opening file stage - later errors can be caught through other means
-if fileexists == True:
+	
 	parsevcf(vcffile)
 	
 	#Close the file on completion
 	vcffile.close()
+except IOError:
+	#Display error if cannot find file and set flag to true
+	print("Error! VCF file does not exist!")	

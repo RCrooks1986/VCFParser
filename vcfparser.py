@@ -1,3 +1,15 @@
+def splitinfoeff(infoeff):
+	"""Splits the effect element in the info column into all of its parameters"""
+	#Format effect element so that all parameters are separated by | and can be split 
+	infoeff = infoeff.replace("EFF=","")
+	infoeff = infoeff.replace("(","|")
+	infoeff = infoeff.replace(")","")
+	
+	#Split effect info into its parameters
+	infoeff = infoeff.split("|")
+	
+	return infoeff
+
 def parsevcf(file):
 	"""Core function that parses the VCF file and extracts specified data from it
 	This function reads the VCF file, extracts the data from the variant table, and returns specified data"""
@@ -26,41 +38,29 @@ def parsevcf(file):
 			#Extract VCF info by splitting
 			vcfinfo = vcfrow[7].split(";")
 			
-			for info in vcfinfo:
+			for infoelement in vcfinfo:
 				#Get the effect of a variant
-				if "EFF=" in info:
-					#Split variants by what type of effects it has
-					effects = info.split("|")
+				if "EFF=" in infoelement:
+					infoelement = splitinfoeff(infoelement)
 					
-					#Split the variant description types
-					variant = effects[3]
-					variant = variant.split("/")
-					
-					for varianttype in variant:
-						if "c." in varianttype:
-							cvariant = varianttype
-					
-					#Format as HGVS
-					gene = effects[5]
-					hgvs = gene + " " + cvariant
-					print(hgvs)
+					print(infoelement)
 
 #Open the VCF file with the given name, check for presence of file and return error if it is not present
 vcffilename = "TestVCF_Filtered_Annotated.vcf"
 
-vcffile = open(vcffilename,"r")
-parsevcf(vcffile)
+try:
+	#Open VCF file and set flag to true
+	vcffile = open(vcffilename,"r")
+	fileexists = True
+except:
+	#Display error if cannot find file and set flag to true
+	print("Error! VCF file does not exist!")
+	fileexists = False
 
-#try:
-#	#Open VCF file
-#	vcffile = open(vcffilename,"r")
-#	
-#	#Call function to parse VCF file
-#	parsevcf(vcffile)
-#	
-#	#Close the file on completion
-#	vcffile.close()
-#except:
-#	#Error if cannot find file
-#	print("Error! VCF file does not exist!")
-#	fileexists = False
+#Only run parser if file exists
+#Use of flag means error is caught at the opening file stage - later errors can be caught through other means
+if fileexists == True:
+	parsevcf(vcffile)
+	
+	#Close the file on completion
+	vcffile.close()

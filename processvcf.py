@@ -3,19 +3,44 @@ from getvariantdescription import getvariantdescription
 from parsesample import parsesample
 from checkvariantsample import checkvariantsample
 from maketempdir import maketempdir
+import os
 
 path = "VCFParser"
 maketempdir(path)
 
-#Ask user to place their
+#Specify the name of your file manager here
+filemanager = "nautilus"
+
+#Open folder onto screen
+folderopencommand = filemanager + " " + path
+os.system(folderopencommand)
+
+#Ask user to place their VCF file in the folder
 input("Copy your input file into the folder and press Enter to continue...")
 
-onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-print(onlyfiles)
+#Get list of VCF files and prompt for user selection
+files = os.listdir(path)
+listvcfs = []
+#vcfindex = 1
+for vcf in files:
+    if vcf.endswith(".vcf"):
+        listvcfs.append(vcf)
+for index, item in enumerate(listvcfs,1):
+    vcfselection = str(index) + ". " + str(item)
+    print(vcfselection)
+
+
+vcfchoice = input("Which no. VCF file would you like you use? ")
+vcfchoice = int(vcfchoice)
+vcfchoice = vcfchoice-1
+vcffilename = listvcfs[vcfchoice]
+
+#Get quality score
+quality = input("What quality score would you like to have as a cut off? ")
+quality = int(quality)
 
 #Remove this later as file will be defined by input
-vcffilename = "TestVCF_Filtered_Annotated.vcf"
-quality = 0
+vcffilename = path + "/" + vcffilename
 
 #Open VCF file and set flag to true
 vcffile = open(vcffilename,"r")
@@ -51,9 +76,11 @@ for vcfline in vcffile:
 
         format = vcfline['FORMAT']
         info = vcfline['INFO']
-        #info = info.split(";")
 
         variantdescription = getvariantdescription(info)
+
+        outputfile = path + "/Output.txt"
+        outputfile = open(outputfile,'a+')
 
         if variantdescription is not False:
             for sampleid in samplenames:
@@ -62,5 +89,9 @@ for vcfline in vcffile:
 
                 accept = checkvariantsample(sampledetails,quality)
 
-                #if accept is True:
-                #    print(sampleid + " " + variantdescription + " " + sampledetails['GT'] + " " + sampledetails['GQ'])
+                if accept is True:
+                    outputlinetext = sampleid + " " + variantdescription + " " + sampledetails['GT'] + " " + sampledetails['GQ'] + "\n"
+                    outputlinetext = f"{sampleid}\t{variantdescription}\t{sampledetails['GT']}\t{sampledetails['GQ']}\n"
+                    outputfile.write(outputlinetext)
+
+outputfile.close()
